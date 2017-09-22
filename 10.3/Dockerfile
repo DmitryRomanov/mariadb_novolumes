@@ -1,5 +1,5 @@
 # vim:set ft=dockerfile:
-FROM debian:wheezy
+FROM debian:jessie
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r mysql && useradd -r -g mysql mysql
@@ -51,17 +51,17 @@ RUN set -ex; \
 	apt-key list
 
 # add Percona's repo for xtrabackup (which is useful for Galera)
-RUN echo "deb https://repo.percona.com/apt wheezy main" > /etc/apt/sources.list.d/percona.list \
+RUN echo "deb https://repo.percona.com/apt jessie main" > /etc/apt/sources.list.d/percona.list \
 	&& { \
 		echo 'Package: *'; \
 		echo 'Pin: release o=Percona Development Team'; \
 		echo 'Pin-Priority: 998'; \
 	} > /etc/apt/preferences.d/percona
 
-ENV MARIADB_MAJOR 5.5
-ENV MARIADB_VERSION 5.5.57+maria-1~wheezy
+ENV MARIADB_MAJOR 10.3
+ENV MARIADB_VERSION 10.3.1+maria~jessie
 
-RUN echo "deb http://ftp.osuosl.org/pub/mariadb/repo/$MARIADB_MAJOR/debian wheezy main" > /etc/apt/sources.list.d/mariadb.list \
+RUN echo "deb http://ftp.osuosl.org/pub/mariadb/repo/$MARIADB_MAJOR/debian jessie main" > /etc/apt/sources.list.d/mariadb.list \
 	&& { \
 		echo 'Package: *'; \
 		echo 'Pin: release o=MariaDB'; \
@@ -80,7 +80,7 @@ RUN { \
 	&& apt-get install -y \
 		"mariadb-server=$MARIADB_VERSION" \
 # percona-xtrabackup is installed at the same time so that `mysql-common` is only installed once from just mariadb repos
-		percona-xtrabackup \
+		percona-xtrabackup-24 \
 		socat \
 	&& rm -rf /var/lib/apt/lists/* \
 # comment out any "user" entires in the MySQL config ("docker-entrypoint.sh" or "--user" will handle user switching)
