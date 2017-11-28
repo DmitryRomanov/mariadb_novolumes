@@ -75,7 +75,7 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-ENV PATH="/usr/local/mysql/bin:/usr/local/mysql/scripts:${PATH}"
+ENV PATH="/usr/local/mysql:/usr/local/mysql/bin:/usr/local/mysql/scripts:${PATH}"
 
 EXPOSE 3306
 CMD ["mysqld"]
