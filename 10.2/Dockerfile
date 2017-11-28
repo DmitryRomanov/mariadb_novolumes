@@ -70,6 +70,11 @@ COPY my.cnf /etc/mysql/my.cnf
 
 RUN git clone https://github.com/MariaDB/server.git
 RUN cd server && git checkout 10.2 && ./BUILD/compile-pentium64-debug-max && cmake --build  . --config Debug && make -j4 install
+RUN ln -s /usr/local/mysql/bin/ /usr/local/mysql/scripts/bin
+RUN ln -s /usr/local/mysql/bin/resolveip /usr/bin/resolveip
+RUN ln -s /usr/local/mysql/bin/mysqld /usr/bin/mysqld
+RUN ln -s /usr/local/mysql/share/english /usr/share/english
+RUN ln -s /usr/local/mysql/share/ /usr/share/mysql
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
