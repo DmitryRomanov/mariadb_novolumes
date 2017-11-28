@@ -69,13 +69,13 @@ RUN { \
 COPY my.cnf /etc/mysql/my.cnf
 
 RUN git clone https://github.com/MariaDB/server.git
-RUN cd server && git checkout 10.2 && ./BUILD/compile-pentium64-debug-max && cmake --build  .  --config Debug && make -j4 install
-RUN mv server/sql/mysqld /usr/sbin/mysqld
-RUN mv server/scripts/mysql_install_db /usr/sbin/mysql_install_db
+RUN cd server && git checkout 10.2 && ./BUILD/compile-pentium64-debug-max && cmake --build  . --config Debug && make -j4 install
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
+
+ENV PATH="/usr/local/mysql/bin:/usr/local/mysql/scripts:${PATH}"
 
 EXPOSE 3306
 CMD ["mysqld"]
