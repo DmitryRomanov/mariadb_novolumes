@@ -98,6 +98,8 @@ RUN { \
 	&& echo '[mysqld]\nskip-host-cache\nskip-name-resolve' > /etc/mysql/conf.d/docker.cnf
 
 COPY docker-entrypoint.sh /usr/local/bin/
+COPY my.cnf /etc/mysql/my.cnf
+
 RUN ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
