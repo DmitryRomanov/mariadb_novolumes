@@ -59,7 +59,9 @@ _check_config() {
 # latter only show values present in config files, and not server defaults
 _get_config() {
 	local conf="$1"; shift
-	"$@" --verbose --help --log-bin-index="$(mktemp -u)" 2>/dev/null | awk '$1 == "'"$conf"'" { print $2; exit }'
+	"$@" --verbose --help --log-bin-index="$(mktemp -u)" 2>/dev/null \
+		| awk '$1 == "'"$conf"'" && /^[^ \t]/ { sub(/^[^ \t]+[ \t]+/, ""); print; exit }'
+	# match "datadir      /some/path with/spaces in/it here" but not "--xyz=abc\n     datadir (xyz)"
 }
 
 # allow the container to be started with `--user`
@@ -67,6 +69,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" -a "$(id -u)" = '0' ]; then
 	_check_config "$@"
 	DATADIR="$(_get_config 'datadir' "$@")"
 	mkdir -p "$DATADIR"
+	find "$DATADIR" \! -user mysql -exec chown mysql '{}' +
 	exec gosu mysql "$BASH_SOURCE" "$@"
 fi
 
@@ -87,7 +90,8 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 		mkdir -p "$DATADIR"
 
 		echo 'Initializing database'
-		mysql_install_db --datadir="$DATADIR" --rpm
+		# "Other options are passed to mysqld." (so we pass all "mysqld" arguments directly here)
+		mysql_install_db --datadir="$DATADIR" --rpm "${@:2}"
 		echo 'Database initialized'
 
 		SOCKET="$(_get_config 'socket' "$@")"
@@ -161,8 +165,6 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 			if [ "$MYSQL_DATABASE" ]; then
 				echo "GRANT ALL ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%' ;" | "${mysql[@]}"
 			fi
-
-			echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
 		fi
 
 		echo

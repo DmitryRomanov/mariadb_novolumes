@@ -89,8 +89,8 @@ RUN set -ex; \
 	apt-key list
 
 # bashbrew-architectures: amd64 arm64v8 ppc64le
-ENV MARIADB_MAJOR 10.3
-ENV MARIADB_VERSION 1:10.3.11+maria~bionic
+ENV MARIADB_MAJOR 10.4
+ENV MARIADB_VERSION 1:10.4.1+maria~bionic
 
 RUN set -e;\
 	echo "deb http://ftp.osuosl.org/pub/mariadb/repo/$MARIADB_MAJOR/ubuntu bionic main" > /etc/apt/sources.list.d/mariadb.list; \

@@ -2,12 +2,15 @@
 set -eu
 
 declare -A aliases=(
-	[10.2]='10 latest'
+	# https://github.com/docker-library/mariadb/pull/83 ("alpha", "beta", "rc" tag discussion)
+	[10.3]='10 latest'
 	[5.5]='5'
 )
 
 self="$(basename "$BASH_SOURCE")"
 cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
+
+source '.architectures-lib'
 
 versions=( */ )
 versions=( "${versions[@]%/}" )
@@ -55,7 +58,7 @@ join() {
 for version in "${versions[@]}"; do
 	commit="$(dirCommit "$version")"
 
-	fullVersion="$(git show "$commit":"$version/Dockerfile" | awk '$1 == "ENV" && $2 == "MARIADB_VERSION" { gsub(/[+].*$/, "", $3); print $3; exit }')"
+	fullVersion="$(git show "$commit":"$version/Dockerfile" | awk '$1 == "ENV" && $2 == "MARIADB_VERSION" { gsub(/^([0-9]+:)|[+].*$/, "", $3); print $3; exit }')"
 
 	versionAliases=( $fullVersion )
 	if [ "$version" != "$fullVersion" ]; then
@@ -63,9 +66,18 @@ for version in "${versions[@]}"; do
 	fi
 	versionAliases+=( ${aliases[$version]:-} )
 
+	from="$(git show "$commit":"$version/Dockerfile" | awk '$1 == "FROM" { print $2; exit }')"
+	distro="${from%%:*}" # "debian", "ubuntu"
+	suite="${from#$distro:}" # "jessie-slim", "xenial"
+	suite="${suite%-slim}" # "jessie", "xenial"
+
+	variantAliases=( "${versionAliases[@]/%/-$suite}" )
+	versionAliases=( "${variantAliases[@]//latest-/}" "${versionAliases[@]}" )
+
 	echo
 	cat <<-EOE
 		Tags: $(join ', ' "${versionAliases[@]}")
+		Architectures: $(join ', ' $(versionArches $version))
 		GitCommit: $commit
 		Directory: $version
 	EOE
