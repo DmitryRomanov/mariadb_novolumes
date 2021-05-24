@@ -89,13 +89,13 @@ RUN set -ex; \
 	apt-key list
 
 # bashbrew-architectures: amd64 arm64v8 ppc64le
-ENV MARIADB_MAJOR 10.3
-ENV MARIADB_VERSION 1:10.3.14+maria~bionic
+ENV MARIADB_MAJOR 10.3.12
+ENV MARIADB_VERSION 1:10.3.12+maria~bionic
 # release-status:Stable
 # (https://downloads.mariadb.org/mariadb/+releases/)
 
 RUN set -e;\
-	echo "deb http://ftp.osuosl.org/pub/mariadb/repo/$MARIADB_MAJOR/ubuntu bionic main" > /etc/apt/sources.list.d/mariadb.list; \
+	echo "deb http://ftp.hosteurope.de/mirror/archive.mariadb.org/mariadb-$MARIADB_MAJOR/repo/ubuntu bionic main" > /etc/apt/sources.list.d/mariadb.list; \
 	{ \
 		echo 'Package: *'; \
 		echo 'Pin: release o=MariaDB'; \
